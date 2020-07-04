@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <!-- 默认300×150 -->
+    <canvas id="canvas"></canvas>
+    <script>
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+
+        var circleList = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        //添加鼠标事件
+        canvas.addEventListener('mousemove', function (ev) {
+            //取鼠标坐标点
+            // var circle = new Circle(ev.clientX, ev.clientY);
+            // circle.draw();
+            circleList.push(new Circle(ev.clientX, ev.clientY));
+        });
+
+        //随机生成min~max范围之间的数字
+        function random(min, max) {
+            return Math.round(Math.random() * (max - min) + min);
+        }
+
+        //构造圆 x y圆心坐标
+        function Circle(x, y) {
+            this.x = x;
+            this.y = y;
+            //速度
+            this.vx = (Math.random() - 0.5) * 3; //随机出现正负值
+            this.vy = (Math.random() - 0.5) * 3;
+            //随机颜色
+            this.color = 'rgb(' + random(0, 255) + ', ' + random(0, 255) + ', ' + random(0, 255) + ')';
+            //透明度
+            this.a = 1;
+        }
+
+        Circle.prototype = {
+            draw: function () {
+                context.beginPath();
+                context.fillStyle = this.color;
+                //globalCompositeOperation 属性设置或返回如何将一个源（新的）图像绘制到目标（已有）的图像上。
+                // 源图像 = 您打算放置到画布上的绘图; 目标图像 = 您已经放置在画布上的绘图。
+                context.globalCompositeOpenration = 'lighter';
+                //全局透明度
+                context.globalAlpha = this.a;
+                //画圆
+                context.arc(this.x, this.y, 15, 0, Math.PI * 2);
+                context.fill();
+
+                this.updata();
+            },
+            updata() {
+                this.x += this.vx;
+                this.y += this.vy;
+                //摩擦系数
+                this.a *= 0.98;
+            }
+        }
+
+        //渲染
+        function render() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            circleList.forEach(function (ele, i) {
+                ele.draw();
+
+                if (ele.a < 0.04) {
+                    circleList.splice(i, 1);
+                }
+            });
+            console.log(circleList.lenght);
+
+            requestAnimationFrame(render);
+        }
+        render();
+    </script>
+</body>
+</html>
